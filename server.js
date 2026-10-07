@@ -39,26 +39,6 @@ const rounds = [
       { name: "Clean water", impact: 82 },
       { name: "Mental health support", impact: 76 }
     ]
-  },
-  {
-    title: "Cyber Shield",
-    description: "A cyberattack has disrupted city services. Decide what to prioritize first.",
-    resources: [
-      { name: "Isolate affected systems", impact: 93 },
-      { name: "Investigate the attack", impact: 76 },
-      { name: "Notify residents", impact: 84 },
-      { name: "Restore safe backups", impact: 97 }
-    ]
-  },
-  {
-    title: "Future City",
-    description: "Your team can shape the next generation of city services. What deserves investment?",
-    resources: [
-      { name: "Education", impact: 88 },
-      { name: "Healthcare", impact: 94 },
-      { name: "Public transport", impact: 85 },
-      { name: "Renewable energy", impact: 92 }
-    ]
   }
 ];
 

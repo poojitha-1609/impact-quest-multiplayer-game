@@ -35,7 +35,7 @@
       <section class="hero">
         <p class="eyebrow">A team decision game</p>
         <h1>Make decisions.<br><span>Create impact.</span></h1>
-        <p class="hero-copy">Join your friends to tackle five real-world challenges. Share your resources, compare your choices, and see the impact your team can make.</p>
+        <p class="hero-copy">Join your friends for three fast-paced community challenges. Share your resources, compare your choices, and see the impact your team can make.</p>
       </section>
       <section class="home-grid" aria-label="Create or join a game">
         <form class="card" id="create-form">
@@ -60,7 +60,7 @@
           <button class="button button-secondary" type="submit">Join room</button>
         </form>
       </section>
-      <aside class="rules"><strong>How to play:</strong> Play five scenarios. Each round, allocate exactly 100 points across four responses. Your points are scored against each response's impact rating. The team score is the average of player scores. Highest total individual score wins. If time runs out, your points are split evenly for that round.</aside>
+      <aside class="rules"><strong>How to play:</strong> Play three scenarios. In each 60-second round, allocate exactly 100 points across four responses in steps of 5. Each response has an impact rating: your round score is the sum of (points allocated × impact rating ÷ 100). Round scores add to your total; the highest total after Round 3 wins. If time runs out, unsubmitted points are split evenly for that round.</aside>
     `;
 
     app.querySelector("#create-form").addEventListener("submit", (event) => {
@@ -108,7 +108,7 @@
         </section>
         <aside class="card">
           <p class="eyebrow">Before you begin</p>
-          <h2>Five rounds. One team.</h2>
+          <h2>Three rounds. One champion.</h2>
           <p>Each round gives you 60 seconds to decide how to spend 100 impact points.</p>
           <div class="rules"><strong>Scoring:</strong> Points allocated to higher-impact choices earn more for your score. Your team score is the average of the players’ scores.</div>
         </aside>
@@ -146,6 +146,7 @@
   function renderPlaying() {
     const currentPlayer = room.players.find((player) => player.id === room.playerId);
     const submitted = currentPlayer?.submitted;
+    const progress = room.roundCount === 0 ? 0 : ((room.roundIndex + 1) / room.roundCount) * 100;
     const resources = room.round.resources.map((resource, index) => `
       <div class="resource-card">
         <div class="resource-line">
@@ -164,6 +165,9 @@
       <div class="game-heading">
         <div>
           <div class="round-meta"><span>ROUND ${room.roundIndex + 1} / ${room.roundCount}</span><span id="timer" class="timer">${formatTime()}</span></div>
+          <div class="round-progress" role="progressbar" aria-label="Game progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}">
+            <span style="width: ${progress}%"></span>
+          </div>
           <h1 class="scenario-title">${escapeHtml(room.round.title)}</h1>
           <p class="scenario-description">${escapeHtml(room.round.description)}</p>
         </div>
@@ -172,7 +176,7 @@
       <div class="game-layout">
         <section class="card">
           <div class="section-heading"><h2>Allocate your points</h2><span class="tag">100 points</span></div>
-          <p class="muted">Use the plus and minus buttons or enter values in steps of 5. Higher impact ratings earn more points.</p>
+          <p class="muted">Use points in steps of 5. Your round score is the sum of (points allocated × impact rating ÷ 100), rounded to the nearest whole point.</p>
           <div class="resource-list">${resources}</div>
           <div class="allocation-total"><span>Allocated</span><span id="total-value" class="total-value">100 / 100</span></div>
           <button class="button submit-button" id="submit-button" type="button" ${submitted ? "disabled" : ""}>${submitted ? "Decision submitted" : "Submit decision"}</button>
@@ -245,34 +249,52 @@
     const isFinished = room.status === "finished";
     const isHost = room.playerId === room.hostId;
     const currentPlayer = room.players.find((player) => player.id === room.playerId);
-    const results = sortedPlayers.map((player, index) => `
-      <div class="result-row">
-        <span class="player-name"><span class="player-dot"></span>${index + 1}. ${escapeHtml(player.name)}${player.timedOut ? " · auto-split" : ""}</span>
-        <strong>+${player.roundScore} <span class="muted">/ ${player.score} total</span></strong>
-      </div>
-    `).join("");
+    const highScore = sortedPlayers[0]?.score ?? 0;
+    const winners = sortedPlayers.filter((player) => player.score === highScore);
+    const winnerNames = winners.map((player) => escapeHtml(player.name)).join(" & ");
+    const results = sortedPlayers.map((player) => {
+      const rank = sortedPlayers.findIndex((entry) => entry.score === player.score) + 1;
+      return `
+        <div class="result-row">
+          <span class="player-name"><span class="player-dot"></span>${rank}. ${escapeHtml(player.name)}${isFinished && player.score === highScore ? " · CHAMPION" : ""}${player.timedOut ? " · auto-split" : ""}</span>
+          <strong>+${player.roundScore} <span class="muted">/ ${player.score} total</span></strong>
+        </div>
+      `;
+    }).join("");
     const allocations = room.round.resources.map((resource, index) => `
-      <div class="result-row"><span>${escapeHtml(resource.name)}</span><strong>${currentPlayer?.allocation?.[index] ?? 0} pts</strong></div>
+      <div class="result-row"><span>${escapeHtml(resource.name)} <span class="muted">× ${resource.impact}%</span></span><strong>${currentPlayer?.allocation?.[index] ?? 0} pts</strong></div>
     `).join("");
+    const winnerTitle = winners.length > 1 ? "Tied champions" : "Impact Champion";
 
     app.innerHTML = `
       <section class="hero">
-        <p class="eyebrow">${isFinished ? "All five rounds complete" : `Round ${room.roundIndex + 1} complete`}</p>
+        <p class="eyebrow">${isFinished ? "All three rounds complete" : `Round ${room.roundIndex + 1} of ${room.roundCount} complete`}</p>
         <h1>${isFinished ? "Quest complete." : "Impact report."}<br><span>${isFinished ? "Look what you built." : escapeHtml(room.round.title)}</span></h1>
         <p class="hero-copy">${isFinished ? "The team has finished every challenge. Here are the final standings." : "Your choices are in. See how the team performed this round."}</p>
       </section>
+      ${isFinished ? `
+        <section class="champion-card" aria-label="${winnerTitle}">
+          <span class="champion-emblem" aria-hidden="true">★</span>
+          <div>
+            <p class="eyebrow">${winnerTitle}</p>
+            <h2>${winnerNames}</h2>
+            <p>${highScore} total impact points</p>
+          </div>
+        </section>
+      ` : ""}
       <div class="game-layout">
         <section class="card">
           <div class="section-heading"><h2>${isFinished ? "Final leaderboard" : "Leaderboard"}</h2><span class="tag">Team impact ${teamScore}</span></div>
           <div class="result-list">${results}</div>
           ${!isFinished && isHost ? '<button class="button submit-button" id="next-round" type="button">Start next round</button>' : ""}
           ${!isFinished && !isHost ? '<p class="waiting-state">Waiting for the host to start the next round…</p>' : ""}
-          ${isFinished ? '<p class="waiting-state">The player with the highest total individual score is the Impact Champion.</p>' : ""}
+          ${isFinished ? '<p class="waiting-state">Final team impact is the average of every player’s total score.</p>' : ""}
         </section>
         <aside class="card">
           <p class="eyebrow">Your decision</p>
           <h2>${escapeHtml(currentPlayer?.name ?? "Player")}</h2>
           <div class="result-list">${allocations}</div>
+          <p class="muted">Each allocation is weighted by that response’s impact rating to calculate your round score.</p>
           <div class="score-card">
             <span class="score-number">+${currentPlayer?.roundScore ?? 0}</span>
             <span class="score-caption">impact points this round</span>

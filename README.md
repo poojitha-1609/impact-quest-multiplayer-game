@@ -1,6 +1,6 @@
 # Impact Quest
 
-Impact Quest is a real-time multiplayer decision game for 2–5 players. Players join the same room from separate browsers or devices, allocate 100 points during each of five scenarios, and compare their individual and team impact scores.
+Impact Quest is a real-time multiplayer decision game for 2–5 players. Players join the same room from separate browsers or devices, allocate 100 points during each of three scenarios, and compare their individual and team impact scores.
 
 ## Requirements
 
@@ -37,7 +37,7 @@ If your computer does not allow Node.js to listen on the network, start it for t
 3. Open the same URL in an Incognito/private window or another browser.
 4. Join with a different player name and the room code.
 5. The host starts the game. Both players allocate exactly 100 points and submit.
-6. Complete the five rounds and compare the leaderboard.
+6. Complete all three rounds and check the final leaderboard and Impact Champion.
 
 Both browsers connect to the same server process. The game server controls the 60-second round timer and scoring. If a player does not submit before time runs out, their points are split evenly for that round.
 
@@ -80,17 +80,17 @@ The server serves the website and Socket.IO from the same address; no separate s
 
 ### 3. Verify the public game
 
-Open the Render URL in two different browsers or devices. Create a room in one, join it from the other using the room code, and play through all five rounds. Share and submit the Render URL, not a `localhost` address. If you later change the code, push the changes to GitHub and wait for Render to deploy the update.
+Open the Render URL in two different browsers or devices. Create a room in one, join it from the other using the room code, and play through all three rounds. Share and submit the Render URL, not a `localhost` address. If you later change the code, push the changes to GitHub and wait for Render to deploy the update.
 
 ## Game rules
 
 - Each room supports 2–5 players total, including the host.
 - The host starts the game after at least two players have joined.
-- There are five scenarios, each with four response choices.
+- There are three scenarios, each with four response choices.
 - Each player allocates exactly 100 points in increments of 5.
 - Each choice has an impact rating from 0 to 100. A player's round score is the sum of each allocation multiplied by its rating, divided by 100 and rounded to the nearest whole number.
 - Round scores add to each player's individual total. The team impact is the average individual total.
-- After each round, the host starts the next one. The player with the highest final individual total is the Impact Champion.
+- After each of the first two rounds, the host starts the next one. After Round 3, the player with the highest final individual total is the Impact Champion; tied top scores share the title.
 - Each round lasts 60 seconds. A player who does not submit in time receives an even 25/25/25/25 allocation for that round.
 
 ## Project structure
