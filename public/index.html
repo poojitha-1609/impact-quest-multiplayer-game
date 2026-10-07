@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101a2b">
+    <meta name="description" content="Team up, make decisions, and build a better future in Impact Quest.">
+    <title>Impact Quest</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="/game.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Impact Quest home">
+          <span class="brand-mark" aria-hidden="true">IQ</span>
+          <span>IMPACT QUEST</span>
+        </a>
+        <span class="live-indicator"><span></span> LIVE MULTIPLAYER</span>
+      </header>
+
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+      <section id="app" aria-live="polite"></section>
+
+      <footer>Make thoughtful choices. Create a better future.</footer>
+    </main>
+  </body>
+</html>
